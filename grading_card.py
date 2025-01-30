@@ -58,8 +58,8 @@ def upload_image_to_gcs(image_file, cert_number):
 st.title("Card Inventory Management Tool")
 st.subheader("By Pancake Analytics LLC")
 
-# ✅ Individual Entry Tab Only
-tab = st.tabs(["Individual Entry"])[0]
+# Create only the "Individual Entry" tab
+tab = st.tabs(["Individual Entry"])[0]  # ✅ Fixes the syntax error
 
 with tab:
     st.subheader("Add a Single Card")
