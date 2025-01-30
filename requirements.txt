@@ -3,3 +3,4 @@ mysql-connector-python
 google-cloud-storage
 pandas
 plotly
+psycopg2
