@@ -170,24 +170,4 @@ with tabs[0]:
                 cursor.close()
                 conn.close()
 
-# ✅ Reporting Tab
-with tabs[2]:
-    st.subheader("Reports")
-    query = "SELECT certnumber, cardnumber, entrydate, sport, player, grade FROM cards"
-    df = fetch_data(query)
 
-    if df is not None and not df.empty:
-        df['entrydate'] = pd.to_datetime(df['entrydate'])
-        df['Week'] = df['entrydate'].dt.to_period('W').astype(str)
-
-        st.write("### Summary Statistics")
-        st.write(f"Total Cards in Inventory: {len(df)}")
-
-
-        st.write("### Cards Added by Week")
-        st.plotly_chart(px.bar(df.groupby('Week').size().reset_index(name='Count'), x='Week', y='Count'))
-
-        st.write("### Grade Distribution")
-        st.plotly_chart(px.bar(df['grade'].value_counts().reset_index(), x='index', y='Grade'))
-    else:
-        st.warning("⚠ No data available for reporting.")
