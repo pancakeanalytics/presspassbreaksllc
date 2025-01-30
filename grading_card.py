@@ -11,30 +11,32 @@ import os
 DB_USER = os.getenv('DB_USER', 'pancakes_dev')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
 DB_NAME = os.getenv('DB_NAME', 'pancakes')
-DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')  # Cloud SQL instance name
-DB_HOST = f"/cloudsql/{DB_CONNECTION_NAME}"
+DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')
 
-# Use Unix socket connection for Cloud SQL
+# ✅ Define Cloud SQL Unix Socket Host (NO IP NEEDED)
+DB_HOST = f"/cloudsql/{DB_CONNECTION_NAME}"
+DB_PORT = 5432  # PostgreSQL default port
+
+# ✅ Corrected Database Configuration
 DB_CONFIG = {
     'dbname': DB_NAME,
     'user': DB_USER,
     'password': DB_PASSWORD,
-    'host': f"/cloudsql/{DB_CONNECTION_NAME}",
-    'port': 5432  # PostgreSQL default port
+    'host': DB_HOST,
+    'port': DB_PORT  # ✅ Port should be an integer, not a string
 }
 
-# Google Cloud Storage Configuration
+# ✅ Google Cloud Storage Configuration
 BUCKET_NAME = 'ppbdb'
 
-# Function to get database connection
+# ✅ Function to Get Database Connection
 def get_db_connection():
-    return psycopg2.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port="5432"  # Default PostgreSQL port
-    )
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)  # ✅ Uses fixed config
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None  # Avoid crashing if connection fails
 
 # Helper function to generate a unique certificate number
 def generate_unique_cert_number(cursor):
