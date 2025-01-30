@@ -110,7 +110,7 @@ def process_csv_row(row, cursor):
 st.title("Card Inventory Management Tool")
 st.subheader("By Pancake Analytics LLC")
 
-tabs = st.tabs(["Individual Entry", "Bulk CSV Upload", "Reports"])
+tabs = st.tabs(["Individual Entry")
 
 # ✅ Individual Entry Tab
 with tabs[0]:
