@@ -2,7 +2,6 @@ import streamlit as st
 from google.cloud import storage
 import psycopg2
 import pandas as pd
-import plotly.express as px
 import random
 import string
 import os
@@ -11,34 +10,31 @@ import os
 DB_USER = os.getenv('DB_USER', 'pancakes_dev')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
 DB_NAME = os.getenv('DB_NAME', 'presspassbreaks')
-DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')
-
-# ✅ Define Cloud SQL Unix Socket Host (No IP Needed)
 DB_HOST = "34.171.57.16"
 DB_PORT = 5432  # PostgreSQL default port
 
-# ✅ Corrected Database Configuration
+# Database Configuration
 DB_CONFIG = {
     'dbname': DB_NAME,
     'user': DB_USER,
     'password': DB_PASSWORD,
     'host': DB_HOST,
-    'port': DB_PORT  # ✅ Port should be an integer, not a string
+    'port': DB_PORT
 }
 
-# ✅ Google Cloud Storage Configuration
+# Google Cloud Storage Configuration
 BUCKET_NAME = 'ppbdb'
 
-# ✅ Function to Get Database Connection with Error Handling
+# Function to Get Database Connection with Error Handling
 def get_db_connection():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         return conn
     except Exception as e:
         st.error(f"❌ Database connection error: {e}")
-        return None  # Prevents further execution if connection fails
+        return None
 
-# ✅ Helper function to generate a unique certificate number
+# Helper function to generate a unique certificate number
 def generate_unique_cert_number(cursor):
     while True:
         cert_number = ''.join(random.choices(string.digits, k=10))
@@ -46,7 +42,7 @@ def generate_unique_cert_number(cursor):
         if cursor.fetchone()[0] == 0:
             return cert_number
 
-# ✅ Helper function to upload an image to Google Cloud Storage
+# Helper function to upload an image to Google Cloud Storage
 def upload_image_to_gcs(image_file, cert_number):
     try:
         storage_client = storage.Client()
@@ -58,62 +54,14 @@ def upload_image_to_gcs(image_file, cert_number):
         st.error(f"❌ Error uploading image to GCS: {e}")
         return None
 
-# ✅ Helper function to fetch data from the database
-def fetch_data(query):
-    conn = get_db_connection()
-    if not conn:
-        return None  # Prevents further execution if connection fails
-    
-    try:
-        df = pd.read_sql_query(query, conn)
-        return df
-    except Exception as e:
-        st.error(f"❌ Error fetching data: {e}")
-        return None
-    finally:
-        conn.close()
-
-# ✅ Helper function to process rows for CSV uploads
-def process_csv_row(row, cursor):
-    cert_number = row.get('CertNumber', '').strip()
-    if not cert_number:
-        cert_number = generate_unique_cert_number(cursor)
-    else:
-        cursor.execute("SELECT COUNT(*) FROM cards WHERE certnumber = %s", (cert_number,))
-        if cursor.fetchone()[0] > 0:
-            raise ValueError(f"CertNumber '{cert_number}' already exists.")
-    
-    card_number = row.get('Card Number', '').strip()
-    if not card_number:
-        raise ValueError("Card Number is required.")
-
-    image_url = row.get('Image', 'https://via.placeholder.com/150')
-    
-    return (
-        image_url,
-        row['Client Name'],
-        row['Entry Date'],
-        row['Sport'],
-        row['Sport Grader'],
-        row['Grade'],
-        row['Player'],
-        row['Set Year'],
-        row['Set Name'],
-        row['Parallel'],
-        cert_number,
-        card_number,
-        row['Auto'],
-        row['Jersey']
-    )
-
-# ✅ Streamlit App
+# Streamlit App
 st.title("Card Inventory Management Tool")
 st.subheader("By Pancake Analytics LLC")
 
-tabs = st.tabs(["Individual Entry")
+# ✅ Individual Entry Tab Only
+tab = st.tabs(["Individual Entry"])[0]
 
-# ✅ Individual Entry Tab
-with tabs[0]:
+with tab:
     st.subheader("Add a Single Card")
     client_name = st.text_input("Client Name")
     entrydate = st.date_input("Entry Date")
@@ -169,5 +117,3 @@ with tabs[0]:
             finally:
                 cursor.close()
                 conn.close()
-
-
