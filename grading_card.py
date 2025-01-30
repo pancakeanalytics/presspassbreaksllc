@@ -173,7 +173,7 @@ with tabs[0]:
 # ✅ Reporting Tab
 with tabs[2]:
     st.subheader("Reports")
-    query = "SELECT CertNumber, CardNumber, entrydate, Sport, Player, Grade FROM cards"
+    query = "SELECT certNumber, cardNumber, entrydate, sport, player, grade FROM cards"
     df = fetch_data(query)
 
     if df is not None and not df.empty:
