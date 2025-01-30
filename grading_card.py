@@ -10,6 +10,9 @@ import os
 DB_USER = os.getenv('DB_USER', 'pancakes_dev')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
 DB_NAME = os.getenv('DB_NAME', 'presspassbreaks')
+DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')
+
+# Define Cloud SQL Connection
 DB_HOST = "34.171.57.16"
 DB_PORT = 5432  # PostgreSQL default port
 
@@ -25,16 +28,16 @@ DB_CONFIG = {
 # Google Cloud Storage Configuration
 BUCKET_NAME = 'ppbdb'
 
-# Function to Get Database Connection with Error Handling
+# Function to Get Database Connection
 def get_db_connection():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         return conn
     except Exception as e:
         st.error(f"❌ Database connection error: {e}")
-        return None
+        return None  # Prevents further execution if connection fails
 
-# Helper function to generate a unique certificate number
+# Function to Generate Unique Certificate Number
 def generate_unique_cert_number(cursor):
     while True:
         cert_number = ''.join(random.choices(string.digits, k=10))
@@ -42,7 +45,7 @@ def generate_unique_cert_number(cursor):
         if cursor.fetchone()[0] == 0:
             return cert_number
 
-# Helper function to upload an image to Google Cloud Storage
+# Function to Upload Image to Google Cloud Storage
 def upload_image_to_gcs(image_file, cert_number):
     try:
         storage_client = storage.Client()
@@ -58,8 +61,8 @@ def upload_image_to_gcs(image_file, cert_number):
 st.title("Card Inventory Management Tool")
 st.subheader("By Pancake Analytics LLC")
 
-# Create only the "Individual Entry" tab
-tab = st.tabs(["Individual Entry"])[0]  # ✅ Fixes the syntax error
+# Individual Entry Tab Only
+tab = st.tabs(["Individual Entry"])[0]  # ✅ Corrected Syntax
 
 with tab:
     st.subheader("Add a Single Card")
