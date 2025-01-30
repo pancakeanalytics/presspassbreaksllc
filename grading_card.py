@@ -1,27 +1,39 @@
 import streamlit as st
 from google.cloud import storage
-import mysql.connector
+import psycopg2
 import pandas as pd
 import plotly.express as px
 import random
 import string
+import os
 
-# Google Cloud SQL Configuration
+# Google Cloud SQL Configuration for PostgreSQL
+DB_USER = os.getenv('DB_USER', 'pancakes_dev')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
+DB_NAME = os.getenv('DB_NAME', 'pancakes')
+DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')  # Cloud SQL instance name
+
+# Use Unix socket connection for Cloud SQL
 DB_CONFIG = {
-    'user': 'presspassbreaks001',
-    'password': 'ABlg0IEstack',
-    'host': '35.237.166.69',
-    'database': 'PPB_DB',
+    'dbname': DB_NAME,
+    'user': DB_USER,
+    'password': DB_PASSWORD,
+    'host': f"/cloudsql/{DB_CONNECTION_NAME}",
+    'port': 5432  # PostgreSQL default port
 }
 
 # Google Cloud Storage Configuration
-BUCKET_NAME = 'ppbb1'
+BUCKET_NAME = 'ppbdb'
+
+# Function to get database connection
+def get_db_connection():
+    return psycopg2.connect(**DB_CONFIG)
 
 # Helper function to generate a unique certificate number
 def generate_unique_cert_number(cursor):
     while True:
         cert_number = ''.join(random.choices(string.digits, k=10))
-        cursor.execute("SELECT COUNT(*) FROM cards WHERE CertNumber = %s", (cert_number,))
+        cursor.execute("SELECT COUNT(*) FROM cards WHERE certnumber = %s", (cert_number,))
         if cursor.fetchone()[0] == 0:
             return cert_number
 
@@ -36,8 +48,8 @@ def upload_image_to_gcs(image_file, cert_number):
 # Helper function to fetch data from the database
 def fetch_data(query):
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
-        df = pd.read_sql(query, conn)
+        conn = get_db_connection()
+        df = pd.read_sql_query(query, conn)
         conn.close()
         return df
     except Exception as e:
@@ -50,7 +62,7 @@ def process_csv_row(row, cursor):
     if not cert_number:
         cert_number = generate_unique_cert_number(cursor)
     else:
-        cursor.execute("SELECT COUNT(*) FROM cards WHERE CertNumber = %s", (cert_number,))
+        cursor.execute("SELECT COUNT(*) FROM cards WHERE certnumber = %s", (cert_number,))
         if cursor.fetchone()[0] > 0:
             raise ValueError(f"CertNumber '{cert_number}' already exists.")
     
@@ -106,13 +118,13 @@ with tabs[0]:
             st.error("Please fill in all fields.")
         else:
             try:
-                conn = mysql.connector.connect(**DB_CONFIG)
+                conn = get_db_connection()
                 cursor = conn.cursor()
 
                 if not cert_number:
                     cert_number = generate_unique_cert_number(cursor)
                 else:
-                    cursor.execute("SELECT COUNT(*) FROM cards WHERE CertNumber = %s", (cert_number,))
+                    cursor.execute("SELECT COUNT(*) FROM cards WHERE certnumber = %s", (cert_number,))
                     if cursor.fetchone()[0] > 0:
                         st.error("CertNumber already exists.")
                         st.stop()
@@ -135,48 +147,6 @@ with tabs[0]:
                 st.error(f"An error occurred: {e}")
             finally:
                 cursor.close()
-                conn.close()
-
-# Bulk CSV Upload Tab
-with tabs[1]:
-    st.subheader("Upload Multiple Cards")
-    csv_file = st.file_uploader("Upload CSV", type=["csv"])
-
-    if csv_file:
-        try:
-            df = pd.read_csv(csv_file)
-            required_columns = [
-                "Client Name", "Entry Date", "Sport", "Sport Grader", "Grade", 
-                "Player", "Set Year", "Set Name", "Parallel", "Auto", "Jersey", 
-                "CertNumber", "Card Number"
-            ]
-            if not all(col in df.columns for col in required_columns):
-                st.error(f"CSV must have columns: {', '.join(required_columns)}")
-            else:
-                conn = mysql.connector.connect(**DB_CONFIG)
-                cursor = conn.cursor()
-
-                for _, row in df.iterrows():
-                    try:
-                        data = process_csv_row(row, cursor)
-                        insert_query = """
-                            INSERT INTO cards (Image, ClientName, EntryDate, Sport, SportGrader, Grade, Player, SetYear, 
-                                               SetName, Parallel, CertNumber, CardNumber, Auto, Jersey)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """
-                        cursor.execute(insert_query, data)
-                    except ValueError as ve:
-                        st.error(f"Error with row: {ve}")
-                        continue
-                
-                conn.commit()
-                st.success("CSV Upload Complete!")
-        except Exception as e:
-            st.error(f"Error processing CSV: {e}")
-        finally:
-            if 'cursor' in locals():
-                cursor.close()
-            if 'conn' in locals():
                 conn.close()
 
 # Reporting Tab
