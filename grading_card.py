@@ -14,7 +14,7 @@ DB_NAME = os.getenv('DB_NAME', 'presspassbreaks')
 DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:presspassbreaks')
 
 # ✅ Define Cloud SQL Unix Socket Host (No IP Needed)
-DB_HOST = f"/cloudsql/{DB_CONNECTION_NAME}"
+DB_HOST = "34.171.57.16"
 DB_PORT = 5432  # PostgreSQL default port
 
 # ✅ Corrected Database Configuration
