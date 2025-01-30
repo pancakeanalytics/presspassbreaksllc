@@ -182,13 +182,13 @@ with tabs[2]:
 
         st.write("### Summary Statistics")
         st.write(f"Total Cards in Inventory: {len(df)}")
-        st.write(f"Unique Sports: {df['Sport'].nunique()}")
-        st.write(f"Unique Players: {df['Player'].nunique()}")
+        st.write(f"Unique Sports: {df['sport'].nunique()}")
+        st.write(f"Unique Players: {df['player'].nunique()}")
 
         st.write("### Cards Added by Week")
         st.plotly_chart(px.bar(df.groupby('Week').size().reset_index(name='Count'), x='Week', y='Count'))
 
         st.write("### Grade Distribution")
-        st.plotly_chart(px.bar(df['Grade'].value_counts().reset_index(), x='index', y='Grade'))
+        st.plotly_chart(px.bar(df['grade'].value_counts().reset_index(), x='index', y='Grade'))
     else:
         st.warning("⚠ No data available for reporting.")
