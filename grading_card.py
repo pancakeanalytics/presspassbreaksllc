@@ -182,8 +182,7 @@ with tabs[2]:
 
         st.write("### Summary Statistics")
         st.write(f"Total Cards in Inventory: {len(df)}")
-        st.write(f"Unique Sports: {df['sport'].nunique()}")
-        st.write(f"Unique Players: {df['player'].nunique()}")
+
 
         st.write("### Cards Added by Week")
         st.plotly_chart(px.bar(df.groupby('Week').size().reset_index(name='Count'), x='Week', y='Count'))
