@@ -116,7 +116,7 @@ tabs = st.tabs(["Individual Entry", "Bulk CSV Upload", "Reports"])
 with tabs[0]:
     st.subheader("Add a Single Card")
     client_name = st.text_input("Client Name")
-    entry_date = st.date_input("Entry Date")
+    entrydate = st.date_input("Entry Date")
     sport = st.text_input("Sport")
     sport_grader = st.text_input("Sport Grader")
     grade = st.text_input("Grade")
@@ -158,7 +158,7 @@ with tabs[0]:
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(insert_query, (
-                    image_url, client_name, entry_date, sport, sport_grader, grade, player,
+                    image_url, client_name, entrydate, sport, sport_grader, grade, player,
                     set_year, set_name, parallel, cert_number, card_number, auto, jersey
                 ))
                 conn.commit()
