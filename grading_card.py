@@ -11,7 +11,7 @@ import os
 DB_USER = os.getenv('DB_USER', 'pancakes_dev')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
 DB_NAME = os.getenv('DB_NAME', 'presspassbreaks')
-DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')
+DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:presspassbreaks')
 
 # ✅ Define Cloud SQL Unix Socket Host (No IP Needed)
 DB_HOST = f"/cloudsql/{DB_CONNECTION_NAME}"
