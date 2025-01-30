@@ -27,7 +27,13 @@ BUCKET_NAME = 'ppbdb'
 
 # Function to get database connection
 def get_db_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    return psycopg2.connect(
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port="5432"  # Default PostgreSQL port
+    )
 
 # Helper function to generate a unique certificate number
 def generate_unique_cert_number(cursor):
