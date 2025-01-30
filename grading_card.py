@@ -12,6 +12,7 @@ DB_USER = os.getenv('DB_USER', 'pancakes_dev')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Spiderman1001!')
 DB_NAME = os.getenv('DB_NAME', 'pancakes')
 DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME', 'pancake-analytics-llc:us-central1:pancakes')  # Cloud SQL instance name
+DB_HOST = f"/cloudsql/{DB_CONNECTION_NAME}"
 
 # Use Unix socket connection for Cloud SQL
 DB_CONFIG = {
