@@ -177,8 +177,8 @@ with tabs[2]:
     df = fetch_data(query)
 
     if df is not None and not df.empty:
-        df['EntryDate'] = pd.to_datetime(df['EntryDate'])
-        df['Week'] = df['EntryDate'].dt.to_period('W').astype(str)
+        df['entrydate'] = pd.to_datetime(df['entrydate'])
+        df['Week'] = df['entrydate'].dt.to_period('W').astype(str)
 
         st.write("### Summary Statistics")
         st.write(f"Total Cards in Inventory: {len(df)}")
